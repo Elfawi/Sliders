@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>slider</title>
+  </head>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    body {
+      width: 90%;
+      margin: 0 auto;
+    }
+    .container {
+      padding: 15rem 3rem;
+    }
+    /* SLIDER */
+    .slider {
+      max-width: 100rem;
+      height: 50rem;
+      margin: 0 auto;
+      position: relative;
+
+      /* IN THE END */
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 50rem;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      /* THIS creates the animation! */
+      transition: transform 1s;
+    }
+
+    .slide > img {
+      /* Only for images that have different size than slide */
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .slider__btn {
+      position: absolute;
+      top: 50%;
+      z-index: 10;
+      border: none;
+      background: rgba(255, 255, 255, 0.7);
+      font-family: inherit;
+      color: #333;
+      border-radius: 50%;
+      height: 5.5rem;
+      width: 5.5rem;
+      font-size: 3.25rem;
+      cursor: pointer;
+    }
+
+    .slider__btn--left {
+      left: 6%;
+      transform: translate(-50%, -50%);
+    }
+
+    .slider__btn--right {
+      right: 6%;
+      transform: translate(50%, -50%);
+    }
+
+    .dots {
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+    }
+
+    .dots__dot {
+      border: none;
+      background-color: #b9b9b9;
+      opacity: 0.7;
+      height: 1rem;
+      width: 1rem;
+      border-radius: 50%;
+      margin-right: 1.75rem;
+      cursor: pointer;
+      transition: all 0.5s;
+
+      /* Only necessary when overlying images */
+      /* box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.7); */
+    }
+
+    .dots__dot:last-child {
+      margin: 0;
+    }
+
+    .dots__dot--active {
+      /* background-color: #fff; */
+      background-color: #777;
+      opacity: 1;
+    }
+    img {
+      width: 100%;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <div class="slider">
+        <div class="slide"><img src="img/img-1.jpg" alt="Photo 1" /></div>
+        <div class="slide"><img src="img/img-2.jpg" alt="Photo 2" /></div>
+        <div class="slide"><img src="img/img-3.jpg" alt="Photo 3" /></div>
+        <div class="slide"><img src="img/img-4.jpg" alt="Photo 4" /></div>
+        <button class="slider__btn slider__btn--left">&larr;</button>
+        <button class="slider__btn slider__btn--right">&rarr;</button>
+        <div class="dots"></div>
+      </div>
+    </div>
+    <script>
+      const slider = function (time) {
+        const slides = document.querySelectorAll(".slide");
+        slides.forEach(
+          (slide, i) => (slide.style.transform = `translateX(${100 * i}%)`)
+        );
+        let currentSlide = 0;
+        const maxSlides = slides.length - 1;
+        const btnSliderLeft = document.querySelector(".slider__btn--left");
+        const btnSliderRight = document.querySelector(".slider__btn--right");
+        const dotContainer = document.querySelector(".dots");
+
+        const createDots = function () {
+          slides.forEach(function (_, i) {
+            dotContainer.insertAdjacentHTML(
+              "beforeend",
+              `<button class="dots__dot" data-slide="${i}"></button>`
+            );
+          });
+        };
+        const activateDot = function (slide) {
+          document
+            .querySelectorAll(".dots__dot")
+            .forEach((dot) => dot.classList.remove("dots__dot--active"));
+          document
+            .querySelector(`.dots__dot[data-slide="${slide}"]`)
+            .classList.add("dots__dot--active");
+        };
+        const goToSlide = function (slide) {
+          slides.forEach((s, i) => {
+            s.style.transform = `translateX(${100 * (i - slide)}%)`;
+          });
+        };
+        const nextSlide = function () {
+          if (currentSlide === maxSlides) {
+            currentSlide = 0;
+          } else {
+            currentSlide++;
+          }
+          goToSlide(currentSlide);
+          activateDot(currentSlide);
+        };
+        const prevSlide = function () {
+          if (currentSlide === 0) {
+            currentSlide = maxSlides;
+          } else {
+            currentSlide--;
+          }
+          goToSlide(currentSlide);
+          activateDot(currentSlide);
+        };
+        const init = function () {
+          createDots();
+          goToSlide(0);
+          activateDot(0);
+        };
+        init();
+        btnSliderRight.addEventListener("click", nextSlide);
+        btnSliderLeft.addEventListener("click", prevSlide);
+
+        document.addEventListener("keydown", function (e) {
+          e.key === "ArrowRight" && nextSlide();
+          e.key === "ArrowLeft" && prevSlide();
+        });
+
+        dotContainer.addEventListener("click", function (e) {
+          if (e.target.classList.contains("dots__dot")) {
+            // const slide = e.target.dataset.slide;
+            const { slide } = e.target.dataset; // destracure as an object
+            console.log(slide);
+            goToSlide(slide);
+            activateDot(slide);
+            // e.target.classList.add('dots__dot--active');
+            // console.log(e.target);
+          }
+        });
+        setInterval(() => {
+          nextSlide();
+        }, time);
+      };
+      slider(4000);
+    </script>
+  </body>
+</html>
